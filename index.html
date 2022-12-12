@@ -5370,54 +5370,55 @@ kernel module. To provide the sha256 algorithm support, make sure
 <a id='x1-61055r27'></a><span class='ecrm-0500'>27</span> 
 <a id='x1-61057r28'></a><span class='ecrm-0500'>28</span><span class='ectt-0800'>    sha256 = crypto_alloc_shash(</span><span id='textcolor2750'><span class='ectt-0800'>"sha256"</span></span><span class='ectt-0800'>, 0, 0);</span> 
 <a id='x1-61059r29'></a><span class='ecrm-0500'>29</span><span class='ectt-0800'>    </span><span id='textcolor2751'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (IS_ERR(sha256)) {</span> 
-<a id='x1-61061r30'></a><span class='ecrm-0500'>30</span><span class='ectt-0800'>        pr_err(</span><span id='textcolor2752'><span class='ectt-0800'>"%s(): Failed to allocate sha256 algorithm, enable CONFIG_CRYPTO_SHA256 and try again.</span></span><span id='textcolor2753'><span class='ectt-0800'>\n</span></span><span id='textcolor2754'><span class='ectt-0800'>"</span></span><span class='ectt-0800'>,</span> 
-<a id='x1-61063r31'></a><span class='ecrm-0500'>31</span><span class='ectt-0800'>               __func__);</span> 
-<a id='x1-61065r32'></a><span class='ecrm-0500'>32</span><span class='ectt-0800'>        </span><span id='textcolor2755'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
-<a id='x1-61067r33'></a><span class='ecrm-0500'>33</span><span class='ectt-0800'>    }</span> 
-<a id='x1-61069r34'></a><span class='ecrm-0500'>34</span> 
-<a id='x1-61071r35'></a><span class='ecrm-0500'>35</span><span class='ectt-0800'>    shash = kmalloc(</span><span id='textcolor2756'><span class='ectt-0800'>sizeof</span></span><span class='ectt-0800'>(</span><span id='textcolor2757'><span class='ectt-0800'>struct</span></span><span class='ectt-0800'> shash_desc) + crypto_shash_descsize(sha256),</span> 
-<a id='x1-61073r36'></a><span class='ecrm-0500'>36</span><span class='ectt-0800'>                    GFP_KERNEL);</span> 
-<a id='x1-61075r37'></a><span class='ecrm-0500'>37</span><span class='ectt-0800'>    </span><span id='textcolor2758'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (!shash)</span> 
-<a id='x1-61077r38'></a><span class='ecrm-0500'>38</span><span class='ectt-0800'>        </span><span id='textcolor2759'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -ENOMEM;</span> 
-<a id='x1-61079r39'></a><span class='ecrm-0500'>39</span> 
-<a id='x1-61081r40'></a><span class='ecrm-0500'>40</span><span class='ectt-0800'>    shash-&gt;tfm = sha256;</span> 
-<a id='x1-61083r41'></a><span class='ecrm-0500'>41</span> 
-<a id='x1-61085r42'></a><span class='ecrm-0500'>42</span><span class='ectt-0800'>    </span><span id='textcolor2760'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (crypto_shash_init(shash))</span> 
-<a id='x1-61087r43'></a><span class='ecrm-0500'>43</span><span class='ectt-0800'>        </span><span id='textcolor2761'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
-<a id='x1-61089r44'></a><span class='ecrm-0500'>44</span> 
-<a id='x1-61091r45'></a><span class='ecrm-0500'>45</span><span class='ectt-0800'>    </span><span id='textcolor2762'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (crypto_shash_update(shash, plaintext, strlen(plaintext)))</span> 
-<a id='x1-61093r46'></a><span class='ecrm-0500'>46</span><span class='ectt-0800'>        </span><span id='textcolor2763'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
-<a id='x1-61095r47'></a><span class='ecrm-0500'>47</span> 
-<a id='x1-61097r48'></a><span class='ecrm-0500'>48</span><span class='ectt-0800'>    </span><span id='textcolor2764'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (crypto_shash_final(shash, hash_sha256))</span> 
-<a id='x1-61099r49'></a><span class='ecrm-0500'>49</span><span class='ectt-0800'>        </span><span id='textcolor2765'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
-<a id='x1-61101r50'></a><span class='ecrm-0500'>50</span> 
-<a id='x1-61103r51'></a><span class='ecrm-0500'>51</span><span class='ectt-0800'>    kfree(shash);</span> 
-<a id='x1-61105r52'></a><span class='ecrm-0500'>52</span><span class='ectt-0800'>    crypto_free_shash(sha256);</span> 
-<a id='x1-61107r53'></a><span class='ecrm-0500'>53</span> 
-<a id='x1-61109r54'></a><span class='ecrm-0500'>54</span><span class='ectt-0800'>    show_hash_result(plaintext, hash_sha256);</span> 
-<a id='x1-61111r55'></a><span class='ecrm-0500'>55</span> 
-<a id='x1-61113r56'></a><span class='ecrm-0500'>56</span><span class='ectt-0800'>    </span><span id='textcolor2766'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> 0;</span> 
-<a id='x1-61115r57'></a><span class='ecrm-0500'>57</span><span class='ectt-0800'>}</span> 
-<a id='x1-61117r58'></a><span class='ecrm-0500'>58</span> 
-<a id='x1-61119r59'></a><span class='ecrm-0500'>59</span><span id='textcolor2767'><span class='ectt-0800'>static</span></span><span class='ectt-0800'> </span><span id='textcolor2768'><span class='ectt-0800'>void</span></span><span class='ectt-0800'> cryptosha256_exit(</span><span id='textcolor2769'><span class='ectt-0800'>void</span></span><span class='ectt-0800'>)</span> 
-<a id='x1-61121r60'></a><span class='ecrm-0500'>60</span><span class='ectt-0800'>{</span> 
-<a id='x1-61123r61'></a><span class='ecrm-0500'>61</span><span class='ectt-0800'>}</span> 
-<a id='x1-61125r62'></a><span class='ecrm-0500'>62</span> 
-<a id='x1-61127r63'></a><span class='ecrm-0500'>63</span><span class='ectt-0800'>module_init(cryptosha256_init);</span> 
-<a id='x1-61129r64'></a><span class='ecrm-0500'>64</span><span class='ectt-0800'>module_exit(cryptosha256_exit);</span> 
-<a id='x1-61131r65'></a><span class='ecrm-0500'>65</span> 
-<a id='x1-61133r66'></a><span class='ecrm-0500'>66</span><span class='ectt-0800'>MODULE_DESCRIPTION(</span><span id='textcolor2770'><span class='ectt-0800'>"sha256 hash test"</span></span><span class='ectt-0800'>);</span> 
-<a id='x1-61135r67'></a><span class='ecrm-0500'>67</span><span class='ectt-0800'>MODULE_LICENSE(</span><span id='textcolor2771'><span class='ectt-0800'>"GPL"</span></span><span class='ectt-0800'>);</span></pre>
+<a id='x1-61061r30'></a><span class='ecrm-0500'>30</span><span class='ectt-0800'>        pr_err(</span> 
+<a id='x1-61063r31'></a><span class='ecrm-0500'>31</span><span class='ectt-0800'>            </span><span id='textcolor2752'><span class='ectt-0800'>"%s(): Failed to allocate sha256 algorithm, enable CONFIG_CRYPTO_SHA256 and try again.</span></span><span id='textcolor2753'><span class='ectt-0800'>\n</span></span><span id='textcolor2754'><span class='ectt-0800'>"</span></span><span class='ectt-0800'>,</span> 
+<a id='x1-61065r32'></a><span class='ecrm-0500'>32</span><span class='ectt-0800'>            __func__);</span> 
+<a id='x1-61067r33'></a><span class='ecrm-0500'>33</span><span class='ectt-0800'>        </span><span id='textcolor2755'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
+<a id='x1-61069r34'></a><span class='ecrm-0500'>34</span><span class='ectt-0800'>    }</span> 
+<a id='x1-61071r35'></a><span class='ecrm-0500'>35</span> 
+<a id='x1-61073r36'></a><span class='ecrm-0500'>36</span><span class='ectt-0800'>    shash = kmalloc(</span><span id='textcolor2756'><span class='ectt-0800'>sizeof</span></span><span class='ectt-0800'>(</span><span id='textcolor2757'><span class='ectt-0800'>struct</span></span><span class='ectt-0800'> shash_desc) + crypto_shash_descsize(sha256),</span> 
+<a id='x1-61075r37'></a><span class='ecrm-0500'>37</span><span class='ectt-0800'>                    GFP_KERNEL);</span> 
+<a id='x1-61077r38'></a><span class='ecrm-0500'>38</span><span class='ectt-0800'>    </span><span id='textcolor2758'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (!shash)</span> 
+<a id='x1-61079r39'></a><span class='ecrm-0500'>39</span><span class='ectt-0800'>        </span><span id='textcolor2759'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -ENOMEM;</span> 
+<a id='x1-61081r40'></a><span class='ecrm-0500'>40</span> 
+<a id='x1-61083r41'></a><span class='ecrm-0500'>41</span><span class='ectt-0800'>    shash-&gt;tfm = sha256;</span> 
+<a id='x1-61085r42'></a><span class='ecrm-0500'>42</span> 
+<a id='x1-61087r43'></a><span class='ecrm-0500'>43</span><span class='ectt-0800'>    </span><span id='textcolor2760'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (crypto_shash_init(shash))</span> 
+<a id='x1-61089r44'></a><span class='ecrm-0500'>44</span><span class='ectt-0800'>        </span><span id='textcolor2761'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
+<a id='x1-61091r45'></a><span class='ecrm-0500'>45</span> 
+<a id='x1-61093r46'></a><span class='ecrm-0500'>46</span><span class='ectt-0800'>    </span><span id='textcolor2762'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (crypto_shash_update(shash, plaintext, strlen(plaintext)))</span> 
+<a id='x1-61095r47'></a><span class='ecrm-0500'>47</span><span class='ectt-0800'>        </span><span id='textcolor2763'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
+<a id='x1-61097r48'></a><span class='ecrm-0500'>48</span> 
+<a id='x1-61099r49'></a><span class='ecrm-0500'>49</span><span class='ectt-0800'>    </span><span id='textcolor2764'><span class='ectt-0800'>if</span></span><span class='ectt-0800'> (crypto_shash_final(shash, hash_sha256))</span> 
+<a id='x1-61101r50'></a><span class='ecrm-0500'>50</span><span class='ectt-0800'>        </span><span id='textcolor2765'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> -1;</span> 
+<a id='x1-61103r51'></a><span class='ecrm-0500'>51</span> 
+<a id='x1-61105r52'></a><span class='ecrm-0500'>52</span><span class='ectt-0800'>    kfree(shash);</span> 
+<a id='x1-61107r53'></a><span class='ecrm-0500'>53</span><span class='ectt-0800'>    crypto_free_shash(sha256);</span> 
+<a id='x1-61109r54'></a><span class='ecrm-0500'>54</span> 
+<a id='x1-61111r55'></a><span class='ecrm-0500'>55</span><span class='ectt-0800'>    show_hash_result(plaintext, hash_sha256);</span> 
+<a id='x1-61113r56'></a><span class='ecrm-0500'>56</span> 
+<a id='x1-61115r57'></a><span class='ecrm-0500'>57</span><span class='ectt-0800'>    </span><span id='textcolor2766'><span class='ectt-0800'>return</span></span><span class='ectt-0800'> 0;</span> 
+<a id='x1-61117r58'></a><span class='ecrm-0500'>58</span><span class='ectt-0800'>}</span> 
+<a id='x1-61119r59'></a><span class='ecrm-0500'>59</span> 
+<a id='x1-61121r60'></a><span class='ecrm-0500'>60</span><span id='textcolor2767'><span class='ectt-0800'>static</span></span><span class='ectt-0800'> </span><span id='textcolor2768'><span class='ectt-0800'>void</span></span><span class='ectt-0800'> cryptosha256_exit(</span><span id='textcolor2769'><span class='ectt-0800'>void</span></span><span class='ectt-0800'>)</span> 
+<a id='x1-61123r61'></a><span class='ecrm-0500'>61</span><span class='ectt-0800'>{</span> 
+<a id='x1-61125r62'></a><span class='ecrm-0500'>62</span><span class='ectt-0800'>}</span> 
+<a id='x1-61127r63'></a><span class='ecrm-0500'>63</span> 
+<a id='x1-61129r64'></a><span class='ecrm-0500'>64</span><span class='ectt-0800'>module_init(cryptosha256_init);</span> 
+<a id='x1-61131r65'></a><span class='ecrm-0500'>65</span><span class='ectt-0800'>module_exit(cryptosha256_exit);</span> 
+<a id='x1-61133r66'></a><span class='ecrm-0500'>66</span> 
+<a id='x1-61135r67'></a><span class='ecrm-0500'>67</span><span class='ectt-0800'>MODULE_DESCRIPTION(</span><span id='textcolor2770'><span class='ectt-0800'>"sha256 hash test"</span></span><span class='ectt-0800'>);</span> 
+<a id='x1-61137r68'></a><span class='ecrm-0500'>68</span><span class='ectt-0800'>MODULE_LICENSE(</span><span id='textcolor2771'><span class='ectt-0800'>"GPL"</span></span><span class='ectt-0800'>);</span></pre>
 <!-- l. 1898 --><p class='indent'>   Install the module:
 </p><!-- l. 1 --><p class='indent'>
 </p>
-   <pre class='fancyvrb' id='fancyvrb83'><a id='x1-61139r1'></a><span class='ecrm-0500'>1</span><span class='ectt-1000'>sudo insmod cryptosha256.ko</span> 
-<a id='x1-61141r2'></a><span class='ecrm-0500'>2</span><span class='ectt-1000'>sudo dmesg</span></pre>
+   <pre class='fancyvrb' id='fancyvrb83'><a id='x1-61141r1'></a><span class='ecrm-0500'>1</span><span class='ectt-1000'>sudo insmod cryptosha256.ko</span> 
+<a id='x1-61143r2'></a><span class='ecrm-0500'>2</span><span class='ectt-1000'>sudo dmesg</span></pre>
 <!-- l. 1905 --><p class='indent'>   And you should see that the hash was calculated for the test string.
 </p><!-- l. 1907 --><p class='indent'>   Finally, remove the test module:
 </p><!-- l. 1 --><p class='indent'>
 </p>
-   <pre class='fancyvrb' id='fancyvrb84'><a id='x1-61144r1'></a><span class='ecrm-0500'>1</span><span class='ectt-1000'>sudo rmmod cryptosha256</span></pre>
+   <pre class='fancyvrb' id='fancyvrb84'><a id='x1-61146r1'></a><span class='ecrm-0500'>1</span><span class='ectt-1000'>sudo rmmod cryptosha256</span></pre>
                                                                   
 
                                                                   
